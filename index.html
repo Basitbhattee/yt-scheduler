@@ -7,310 +7,175 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #0a0a0a;
-  --s1:       #111111;
-  --s2:       #181818;
-  --s3:       #222222;
-  --border:   #2a2a2a;
-  --border2:  #333333;
-  --text:     #f0f0f0;
-  --text2:    #888;
-  --text3:    #555;
-  --red:      #ff2d2d;
-  --red2:     #ff5555;
-  --green:    #22c55e;
-  --yellow:   #facc15;
-  --blue:     #3b82f6;
-  --mono:     'DM Mono', monospace;
-  --sans:     'Syne', sans-serif;
+  --bg:#0a0a0a; --s1:#111; --s2:#181818; --s3:#222; --border:#2a2a2a; --border2:#333;
+  --text:#f0f0f0; --text2:#888; --text3:#555;
+  --red:#ff2d2d; --red2:#ff5555; --green:#22c55e; --yellow:#facc15; --blue:#3b82f6;
+  --mono:'DM Mono',monospace; --sans:'Syne',sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.hidden{display:none!important}
+.mono{font-family:var(--mono)}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 14px; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+/* SETUP */
+#setupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px)}
+.setup-box{background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:40px;width:100%;max-width:500px}
+.setup-box h1{font-size:1.6rem;font-weight:800;margin-bottom:6px}
+.setup-box p{color:var(--text2);font-size:.9rem;margin-bottom:28px;line-height:1.6}
+.setup-box a{color:var(--red);text-decoration:none}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--s1); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+/* LOADING */
+#loadingScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.load-logo{font-size:1.8rem;font-weight:800}.load-logo span{color:var(--red)}
+.load-status{font-size:.82rem;color:var(--text3);font-family:var(--mono)}
 
-/* ── UTILITY ── */
-.hidden { display: none !important; }
-.mono { font-family: var(--mono); }
+/* FORMS */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;background:var(--s2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:.88rem;padding:10px 12px;border-radius:8px;outline:none;transition:border .15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--red)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field select option{background:var(--s2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* ── SETUP OVERLAY ── */
-#setupOverlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.95);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 999; backdrop-filter: blur(4px);
-}
-.setup-box {
-  background: var(--s1); border: 1px solid var(--border2);
-  border-radius: 16px; padding: 40px; width: 100%; max-width: 500px;
-}
-.setup-box h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
-.setup-box p { color: var(--text2); font-size: .9rem; margin-bottom: 28px; line-height: 1.6; }
-.setup-box a { color: var(--red); text-decoration: none; }
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:var(--sans);font-size:.88rem;font-weight:600;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{background:var(--red2);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--s2);color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:.8rem}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn-full{width:100%;justify-content:center}
 
-/* ── FORMS ── */
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: .78rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-.field input, .field textarea, .field select {
-  width: 100%; background: var(--s2); border: 1px solid var(--border2);
-  color: var(--text); font-family: var(--mono); font-size: .88rem;
-  padding: 10px 12px; border-radius: 8px; outline: none; transition: border .15s;
-}
-.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--red); }
-.field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-.field select option { background: var(--s2); }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,45,45,.12),transparent)}
+.login-logo{font-size:2.2rem;font-weight:800;margin-bottom:8px}.login-logo span{color:var(--red)}
+.login-sub{color:var(--text2);font-size:.95rem;margin-bottom:40px;text-align:center}
+.google-btn{display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a1a;padding:13px 28px;border-radius:10px;border:none;cursor:pointer;font-family:var(--sans);font-size:1rem;font-weight:600;transition:all .15s;box-shadow:0 2px 20px rgba(0,0,0,.4)}
+.google-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(0,0,0,.5)}
+.google-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.google-btn svg{width:22px;height:22px;flex-shrink:0}
+.login-note{margin-top:20px;font-size:.78rem;color:var(--text3);text-align:center;max-width:360px}
+.setup-link{color:var(--red);cursor:pointer;text-decoration:underline}
 
-/* ── BUTTONS ── */
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
-  font-family: var(--sans); font-size: .88rem; font-weight: 600;
-  transition: all .15s; text-decoration: none;
-}
-.btn-primary { background: var(--red); color: #fff; }
-.btn-primary:hover { background: var(--red2); transform: translateY(-1px); }
-.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-.btn-ghost:hover { background: var(--s2); color: var(--text); }
-.btn-sm { padding: 6px 14px; font-size: .8rem; }
-.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
-.btn-full { width: 100%; justify-content: center; }
+/* MAIN */
+#mainApp{display:flex;flex-direction:column;min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:58px;background:var(--s1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.header-logo{font-size:1.1rem;font-weight:800}.header-logo span{color:var(--red)}
+.header-right{display:flex;align-items:center;gap:12px}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border2);padding:5px 12px 5px 8px;border-radius:20px;font-size:.82rem;color:var(--text2)}
+.user-avatar{width:24px;height:24px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+nav{display:flex;gap:2px;padding:0 28px;background:var(--s1);border-bottom:1px solid var(--border)}
+.nav-tab{padding:14px 20px;font-size:.85rem;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:7px}
+.nav-tab:hover{color:var(--text2)}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--red)}
+main{flex:1;padding:32px 28px;max-width:960px;width:100%;margin:0 auto}
 
-/* ── LOGIN SCREEN ── */
-#loginScreen {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 0;
-  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,45,45,.12), transparent);
-}
-.login-logo { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
-.login-logo span { color: var(--red); }
-.login-sub { color: var(--text2); font-size: .95rem; margin-bottom: 40px; text-align: center; }
-.google-btn {
-  display: flex; align-items: center; gap: 12px;
-  background: #fff; color: #1a1a1a; padding: 13px 28px; border-radius: 10px;
-  border: none; cursor: pointer; font-family: var(--sans); font-size: 1rem; font-weight: 600;
-  transition: all .15s; box-shadow: 0 2px 20px rgba(0,0,0,.4);
-}
-.google-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(0,0,0,.5); }
-.google-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
-.login-note { margin-top: 20px; font-size: .78rem; color: var(--text3); text-align: center; max-width: 360px; }
-.setup-link { color: var(--red); cursor: pointer; text-decoration: underline; }
+/* UPLOAD */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.drop-zone{border:2px dashed var(--border2);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s1);position:relative}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--red);background:rgba(255,45,45,.04)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:2rem;margin-bottom:8px}
+.drop-label{font-size:.85rem;font-weight:600;color:var(--text2)}
+.drop-sub{font-size:.75rem;color:var(--text3);margin-top:4px}
+.file-preview{margin-top:12px;padding:10px 12px;background:var(--s2);border-radius:8px;display:flex;align-items:center;gap:10px;text-align:left}
+.file-preview-name{font-size:.8rem;font-family:var(--mono);color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-preview-size{font-size:.75rem;color:var(--text3);font-family:var(--mono)}
+.thumb-preview{margin-top:12px;border-radius:8px;overflow:hidden;max-height:120px}
+.thumb-preview img{width:100%;height:120px;object-fit:cover;display:block}
+.section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.type-selector{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-option{position:relative}
+.type-option input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.type-label{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;cursor:pointer;transition:all .15s}
+.type-label:hover{border-color:var(--border)}
+.type-option input:checked+.type-label{border-color:var(--red);background:rgba(255,45,45,.07)}
+.type-icon{font-size:1.3rem}
+.type-text{font-size:.85rem;font-weight:600}
+.type-sub{font-size:.72rem;color:var(--text3)}
+.schedule-box{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:20px}
 
-/* ── MAIN APP ── */
-#mainApp { display: flex; flex-direction: column; min-height: 100vh; }
+/* PROGRESS */
+#progressArea{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:20px}
+.progress-label{font-size:.85rem;color:var(--text2);margin-bottom:10px;display:flex;justify-content:space-between}
+.progress-bar-outer{height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
+.progress-bar-inner{height:100%;background:var(--red);border-radius:3px;transition:width .3s ease}
+.progress-steps{margin-top:12px;display:flex;flex-direction:column;gap:5px}
+.progress-step{font-size:.78rem;font-family:var(--mono);color:var(--text3);display:flex;align-items:center;gap:8px}
+.progress-step.done{color:var(--green)}
+.progress-step.active{color:var(--text)}
+.step-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-/* ── HEADER ── */
-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 28px; height: 58px; background: var(--s1);
-  border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50;
-}
-.header-logo { font-size: 1.1rem; font-weight: 800; }
-.header-logo span { color: var(--red); }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.user-chip {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--s2); border: 1px solid var(--border2);
-  padding: 5px 12px 5px 8px; border-radius: 20px; font-size: .82rem; color: var(--text2);
-}
-.user-avatar {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--red); display: flex; align-items: center; justify-content: center;
-  font-size: .7rem; font-weight: 700; color: #fff; overflow: hidden;
-}
-.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* QUEUE */
+.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.queue-count{font-size:.8rem;color:var(--text3);font-family:var(--mono)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:600;font-family:var(--mono)}
+.badge-pending{background:rgba(250,204,21,.12);color:var(--yellow)}
+.badge-uploading{background:rgba(59,130,246,.12);color:var(--blue)}
+.badge-uploaded{background:rgba(34,197,94,.12);color:var(--green)}
+.badge-error{background:rgba(255,45,45,.12);color:var(--red2)}
+.queue-table{width:100%;border-collapse:collapse}
+.queue-table th{text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border)}
+.queue-table td{padding:12px;border-bottom:1px solid var(--border);font-size:.85rem;vertical-align:middle}
+.queue-table tr:last-child td{border-bottom:none}
+.queue-table tr:hover td{background:var(--s1)}
+.queue-title{font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.queue-time{font-family:var(--mono);font-size:.78rem;color:var(--text2)}
+.queue-type{font-family:var(--mono);font-size:.75rem;color:var(--text3)}
+.yt-link{color:var(--red);text-decoration:none;font-family:var(--mono);font-size:.78rem}
+.yt-link:hover{text-decoration:underline}
+.delete-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:6px;font-size:.9rem;transition:all .15s}
+.delete-btn:hover{color:var(--red);background:rgba(255,45,45,.1)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-icon{font-size:3rem;margin-bottom:12px}
 
-/* ── NAV TABS ── */
-nav {
-  display: flex; gap: 2px; padding: 0 28px;
-  background: var(--s1); border-bottom: 1px solid var(--border);
-}
-.nav-tab {
-  padding: 14px 20px; font-size: .85rem; font-weight: 600; color: var(--text3);
-  cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s;
-  display: flex; align-items: center; gap: 7px;
-}
-.nav-tab:hover { color: var(--text2); }
-.nav-tab.active { color: var(--text); border-bottom-color: var(--red); }
+/* SETTINGS */
+.settings-box{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:560px}
+.settings-box h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+.settings-box p{font-size:.82rem;color:var(--text2);margin-bottom:24px;line-height:1.6}
 
-/* ── CONTENT AREA ── */
-main { flex: 1; padding: 32px 28px; max-width: 960px; width: 100%; margin: 0 auto; }
-
-/* ── UPLOAD TAB ── */
-.upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-
-/* Drop Zones */
-.drop-zone {
-  border: 2px dashed var(--border2); border-radius: 12px;
-  padding: 28px 20px; text-align: center; cursor: pointer;
-  transition: all .2s; background: var(--s1); position: relative;
-}
-.drop-zone:hover, .drop-zone.dragover {
-  border-color: var(--red); background: rgba(255,45,45,.04);
-}
-.drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.drop-icon { font-size: 2rem; margin-bottom: 8px; }
-.drop-label { font-size: .85rem; font-weight: 600; color: var(--text2); }
-.drop-sub { font-size: .75rem; color: var(--text3); margin-top: 4px; }
-.file-preview {
-  margin-top: 12px; padding: 10px 12px; background: var(--s2); border-radius: 8px;
-  display: flex; align-items: center; gap: 10px; text-align: left;
-}
-.file-preview-name { font-size: .8rem; font-family: var(--mono); color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-preview-size { font-size: .75rem; color: var(--text3); font-family: var(--mono); }
-.thumb-preview { margin-top: 12px; border-radius: 8px; overflow: hidden; max-height: 120px; }
-.thumb-preview img { width: 100%; height: 120px; object-fit: cover; display: block; }
-
-/* Section header */
-.section-title {
-  font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
-  color: var(--text3); margin-bottom: 16px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-/* Type selector */
-.type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.type-option { position: relative; }
-.type-option input[type=radio] { position: absolute; opacity: 0; pointer-events: none; }
-.type-label {
-  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-  background: var(--s2); border: 1px solid var(--border2); border-radius: 10px;
-  cursor: pointer; transition: all .15s;
-}
-.type-label:hover { border-color: var(--border); }
-.type-option input:checked + .type-label {
-  border-color: var(--red); background: rgba(255,45,45,.07);
-}
-.type-icon { font-size: 1.3rem; }
-.type-text { font-size: .85rem; font-weight: 600; }
-.type-sub { font-size: .72rem; color: var(--text3); }
-
-/* Schedule section */
-.schedule-box {
-  background: var(--s1); border: 1px solid var(--border); border-radius: 12px;
-  padding: 20px;
-}
-
-/* Progress */
-#progressArea {
-  background: var(--s1); border: 1px solid var(--border); border-radius: 12px;
-  padding: 20px; margin-top: 20px;
-}
-.progress-label { font-size: .85rem; color: var(--text2); margin-bottom: 10px; display: flex; justify-content: space-between; }
-.progress-bar-outer { height: 6px; background: var(--s3); border-radius: 3px; overflow: hidden; }
-.progress-bar-inner { height: 100%; background: var(--red); border-radius: 3px; transition: width .3s ease; }
-.progress-steps { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
-.progress-step { font-size: .78rem; font-family: var(--mono); color: var(--text3); display: flex; align-items: center; gap: 8px; }
-.progress-step.done { color: var(--green); }
-.progress-step.active { color: var(--text); }
-.step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-
-/* ── QUEUE TAB ── */
-.queue-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.queue-count { font-size: .8rem; color: var(--text3); font-family: var(--mono); }
-.status-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 20px; font-size: .72rem; font-weight: 600; font-family: var(--mono);
-}
-.badge-pending  { background: rgba(250,204,21,.12); color: var(--yellow); }
-.badge-uploading { background: rgba(59,130,246,.12); color: var(--blue); }
-.badge-uploaded { background: rgba(34,197,94,.12); color: var(--green); }
-.badge-error    { background: rgba(255,45,45,.12); color: var(--red2); }
-.queue-table { width: 100%; border-collapse: collapse; }
-.queue-table th {
-  text-align: left; font-size: .7rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--text3); padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.queue-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: .85rem; vertical-align: middle; }
-.queue-table tr:last-child td { border-bottom: none; }
-.queue-table tr:hover td { background: var(--s1); }
-.queue-title { font-weight: 600; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queue-time { font-family: var(--mono); font-size: .78rem; color: var(--text2); }
-.queue-type { font-family: var(--mono); font-size: .75rem; color: var(--text3); }
-.yt-link { color: var(--red); text-decoration: none; font-family: var(--mono); font-size: .78rem; }
-.yt-link:hover { text-decoration: underline; }
-.delete-btn {
-  background: none; border: none; color: var(--text3); cursor: pointer;
-  padding: 4px 6px; border-radius: 6px; font-size: .9rem; transition: all .15s;
-}
-.delete-btn:hover { color: var(--red); background: rgba(255,45,45,.1); }
-.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
-.empty-icon { font-size: 3rem; margin-bottom: 12px; }
-.empty-text { font-size: .9rem; }
-
-/* ── SETTINGS TAB ── */
-.settings-box {
-  background: var(--s1); border: 1px solid var(--border); border-radius: 12px;
-  padding: 24px; max-width: 560px;
-}
-.settings-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-.settings-box p { font-size: .82rem; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
-.settings-saved { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--green); margin-top: 12px; }
-
-/* ── TOAST ── */
-#toast {
-  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
-}
-.toast-item {
-  padding: 12px 18px; border-radius: 10px; font-size: .85rem; font-weight: 600;
-  display: flex; align-items: center; gap: 8px; pointer-events: all;
-  animation: toastIn .25s ease; box-shadow: 0 4px 20px rgba(0,0,0,.5);
-  max-width: 340px;
-}
-.toast-success { background: #0f2a1a; border: 1px solid var(--green); color: var(--green); }
-.toast-error   { background: #2a0f0f; border: 1px solid var(--red); color: var(--red2); }
-.toast-info    { background: #0f1a2a; border: 1px solid var(--blue); color: var(--blue); }
-@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
-
-/* ── LOADING SPINNER ── */
-.spinner {
-  width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.2);
-  border-top-color: #fff; border-radius: 50%;
-  animation: spin .7s linear infinite; flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── MISC ── */
-hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-.info-box {
-  background: rgba(59,130,246,.07); border: 1px solid rgba(59,130,246,.25);
-  border-radius: 10px; padding: 14px 16px; font-size: .82rem; color: #93c5fd; line-height: 1.6;
-  margin-bottom: 20px;
-}
-.info-box strong { color: #bfdbfe; }
+/* TOAST */
+#toast{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-item{padding:12px 18px;border-radius:10px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:8px;pointer-events:all;animation:toastIn .25s ease;box-shadow:0 4px 20px rgba(0,0,0,.5);max-width:340px}
+.toast-success{background:#0f2a1a;border:1px solid var(--green);color:var(--green)}
+.toast-error{background:#2a0f0f;border:1px solid var(--red);color:var(--red2)}
+.toast-info{background:#0f1a2a;border:1px solid var(--blue);color:var(--blue)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+hr.divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+.info-box{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:14px 16px;font-size:.82rem;color:#93c5fd;line-height:1.6;margin-bottom:20px}
+.info-box strong{color:#bfdbfe}
 </style>
 </head>
 <body>
 
-<!-- ══ SETUP OVERLAY ══ -->
-<div id="setupOverlay">
+<!-- SETUP OVERLAY -->
+<div id="setupOverlay" class="hidden">
   <div class="setup-box">
     <h1>⚙️ First-time Setup</h1>
-    <p>You need a Google Cloud project with <strong>Drive API</strong> and <strong>Sheets API</strong> enabled.
-    Create an <strong>OAuth 2.0 Web Client ID</strong> at
-    <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>
-    and add this page's URL as an authorized JavaScript origin.
-    <br><br>Then create a blank <a href="https://sheets.google.com" target="_blank">Google Sheet</a> and paste its ID from the URL bar.</p>
-    <div class="field">
-      <label>OAuth 2.0 Client ID</label>
-      <input id="setupClientId" type="text" placeholder="123456789-abc.apps.googleusercontent.com">
-    </div>
-    <div class="field">
-      <label>Google Sheet ID</label>
-      <input id="setupSheetId" type="text" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-    </div>
+    <p>Create a Google Cloud project, enable <strong>Drive API</strong> + <strong>Sheets API</strong>, create an <strong>OAuth 2.0 Web Client ID</strong> at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a>, and add this page's URL as an authorized JavaScript origin. Then create a blank <a href="https://sheets.google.com" target="_blank">Google Sheet</a> and paste its ID below.</p>
+    <div class="field"><label>OAuth 2.0 Client ID</label><input id="setupClientId" type="text" placeholder="123456789-abc.apps.googleusercontent.com"></div>
+    <div class="field"><label>Google Sheet ID</label><input id="setupSheetId" type="text" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"></div>
     <button class="btn btn-primary btn-full" onclick="saveSetup()">Save & Continue →</button>
   </div>
 </div>
 
-<!-- ══ LOGIN SCREEN ══ -->
+<!-- LOADING SCREEN -->
+<div id="loadingScreen">
+  <div class="load-logo">YT <span>Scheduler</span></div>
+  <div class="spinner" style="border-top-color:var(--red)"></div>
+  <div class="load-status" id="loadStatus">Initializing Google APIs...</div>
+</div>
+
+<!-- LOGIN SCREEN -->
 <div id="loginScreen" class="hidden">
   <div class="login-logo">YT <span>Scheduler</span></div>
   <p class="login-sub">Schedule & automate your YouTube uploads — 100% free</p>
@@ -318,13 +183,10 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
     <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
     Sign in with Google
   </button>
-  <p class="login-note">
-    This will request access to your Google Drive (to store video files) and Google Sheets (to store the schedule).
-    <span class="setup-link" onclick="showSetup()">Change setup config</span>
-  </p>
+  <p class="login-note">Grants access to Google Drive (video storage) and Google Sheets (schedule). <span class="setup-link" onclick="showSetup()">Change config</span></p>
 </div>
 
-<!-- ══ MAIN APP ══ -->
+<!-- MAIN APP -->
 <div id="mainApp" class="hidden">
   <header>
     <div class="header-logo">YT <span>Scheduler</span></div>
@@ -336,23 +198,17 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
       <button class="btn btn-ghost btn-sm" onclick="signOut()">Sign out</button>
     </div>
   </header>
-
   <nav>
     <div class="nav-tab active" data-tab="upload" onclick="switchTab('upload')">📤 Upload</div>
     <div class="nav-tab" data-tab="queue" onclick="switchTab('queue')">📋 Queue</div>
     <div class="nav-tab" data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</div>
   </nav>
-
   <main>
 
-    <!-- ── UPLOAD TAB ── -->
+    <!-- UPLOAD TAB -->
     <div id="tabUpload">
-      <div class="info-box">
-        <strong>How it works:</strong> Your video uploads to Google Drive, and the Google Apps Script uploader (running on a schedule) picks it up and publishes to YouTube at the time you set. Make sure your Apps Script is deployed and running.
-      </div>
-
+      <div class="info-box"><strong>How it works:</strong> Video uploads to Google Drive. The Apps Script (running every 30 min) picks it up and publishes to YouTube at your scheduled time.</div>
       <div class="upload-grid">
-        <!-- LEFT: Files -->
         <div>
           <div class="section-title">Video File</div>
           <div class="drop-zone" id="videoDropZone">
@@ -362,7 +218,6 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
             <div class="drop-sub">MP4, MOV, AVI — any size</div>
             <div id="videoPreview" class="hidden"></div>
           </div>
-
           <div style="margin-top:16px">
             <div class="section-title">Thumbnail (optional)</div>
             <div class="drop-zone" id="thumbDropZone" style="padding:18px">
@@ -374,22 +229,11 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
             </div>
           </div>
         </div>
-
-        <!-- RIGHT: Metadata -->
         <div>
           <div class="section-title">Video Details</div>
-          <div class="field">
-            <label>Title *</label>
-            <input id="titleInput" type="text" placeholder="My awesome video" maxlength="100">
-          </div>
-          <div class="field">
-            <label>Description</label>
-            <textarea id="descInput" placeholder="Video description..."></textarea>
-          </div>
-          <div class="field">
-            <label>Tags (comma-separated)</label>
-            <input id="tagsInput" type="text" placeholder="tag1, tag2, tag3">
-          </div>
+          <div class="field"><label>Title *</label><input id="titleInput" type="text" placeholder="My awesome video" maxlength="100"></div>
+          <div class="field"><label>Description</label><textarea id="descInput" placeholder="Video description..."></textarea></div>
+          <div class="field"><label>Tags (comma-separated)</label><input id="tagsInput" type="text" placeholder="tag1, tag2, tag3"></div>
           <div class="field-row">
             <div class="field" style="margin:0">
               <label>Category</label>
@@ -417,113 +261,76 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
           </div>
         </div>
       </div>
-
       <hr class="divider">
-
-      <!-- Type + Schedule -->
       <div class="upload-grid">
         <div>
           <div class="section-title">Content Type</div>
           <div class="type-selector">
             <label class="type-option">
               <input type="radio" name="videoType" value="video" checked>
-              <div class="type-label">
-                <span class="type-icon">📹</span>
-                <div><div class="type-text">Video</div><div class="type-sub">Regular YouTube video</div></div>
-              </div>
+              <div class="type-label"><span class="type-icon">📹</span><div><div class="type-text">Video</div><div class="type-sub">Regular YouTube video</div></div></div>
             </label>
             <label class="type-option">
               <input type="radio" name="videoType" value="short">
-              <div class="type-label">
-                <span class="type-icon">📱</span>
-                <div><div class="type-text">Short</div><div class="type-sub">Vertical, under 60s</div></div>
-              </div>
+              <div class="type-label"><span class="type-icon">📱</span><div><div class="type-text">Short</div><div class="type-sub">Vertical, under 60s</div></div></div>
             </label>
           </div>
         </div>
-
         <div>
           <div class="section-title">Schedule</div>
           <div class="schedule-box">
             <div class="field-row" style="margin-bottom:12px">
-              <div class="field" style="margin:0">
-                <label>Date</label>
-                <input type="date" id="schedDate">
-              </div>
-              <div class="field" style="margin:0">
-                <label>Time</label>
-                <input type="time" id="schedTime">
-              </div>
+              <div class="field" style="margin:0"><label>Date</label><input type="date" id="schedDate"></div>
+              <div class="field" style="margin:0"><label>Time</label><input type="time" id="schedTime"></div>
             </div>
             <div class="field" style="margin:0">
               <label>Frequency</label>
               <select id="freqInput">
                 <option value="once">Once (one-time upload)</option>
-                <option value="daily">Daily (repeat same video daily)</option>
-                <option value="weekly">Weekly (repeat same video weekly)</option>
+                <option value="daily">Daily (repeat daily at this time)</option>
+                <option value="weekly">Weekly (repeat weekly)</option>
               </select>
             </div>
           </div>
         </div>
       </div>
-
       <div style="margin-top:24px">
         <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">
           <span id="submitBtnText">📤 Schedule Upload</span>
         </button>
       </div>
-
-      <!-- Progress -->
       <div id="progressArea" class="hidden">
-        <div class="progress-label">
-          <span id="progressLabel">Uploading...</span>
-          <span id="progressPct" class="mono">0%</span>
-        </div>
+        <div class="progress-label"><span id="progressLabel">Uploading...</span><span id="progressPct" class="mono">0%</span></div>
         <div class="progress-bar-outer"><div id="progressBar" class="progress-bar-inner" style="width:0%"></div></div>
         <div class="progress-steps" id="progressSteps"></div>
       </div>
     </div>
 
-    <!-- ── QUEUE TAB ── -->
+    <!-- QUEUE TAB -->
     <div id="tabQueue" class="hidden">
       <div class="queue-header">
-        <div>
-          <div style="font-size:1.1rem;font-weight:700">Upload Queue</div>
-          <div class="queue-count" id="queueCount">Loading...</div>
-        </div>
+        <div><div style="font-size:1.1rem;font-weight:700">Upload Queue</div><div class="queue-count" id="queueCount">—</div></div>
         <button class="btn btn-ghost btn-sm" onclick="loadQueue()">↻ Refresh</button>
       </div>
-
-      <div id="queueContent">
-        <div class="empty-state">
-          <div class="empty-icon">⏳</div>
-          <div class="empty-text">Loading queue...</div>
-        </div>
-      </div>
+      <div id="queueContent"><div class="empty-state"><div class="empty-icon">⏳</div><div>Loading...</div></div></div>
     </div>
 
-    <!-- ── SETTINGS TAB ── -->
+    <!-- SETTINGS TAB -->
     <div id="tabSettings" class="hidden">
       <div class="settings-box">
         <h3>Configuration</h3>
-        <p>Update your Google Cloud Client ID or Google Sheet ID. Changes take effect after the page reloads.</p>
-        <div class="field">
-          <label>OAuth 2.0 Client ID</label>
-          <input id="settingsClientId" type="text">
-        </div>
-        <div class="field">
-          <label>Google Sheet ID</label>
-          <input id="settingsSheetId" type="text">
-        </div>
+        <p>Update your Google Cloud Client ID or Google Sheet ID. Changes take effect after reload.</p>
+        <div class="field"><label>OAuth 2.0 Client ID</label><input id="settingsClientId" type="text"></div>
+        <div class="field"><label>Google Sheet ID</label><input id="settingsSheetId" type="text"></div>
         <button class="btn btn-primary" onclick="saveSettings()">Save & Reload</button>
         <hr class="divider">
         <div style="font-size:.82rem;color:var(--text2);line-height:1.8">
           <strong style="color:var(--text);display:block;margin-bottom:8px">🔗 Connected Sheet</strong>
-          Sheet ID: <span class="mono" style="color:var(--text)" id="sheetIdDisplay">—</span><br>
+          ID: <span class="mono" style="color:var(--text)" id="sheetIdDisplay">—</span><br>
           <a id="sheetLink" href="#" target="_blank" style="color:var(--red)">Open Sheet →</a>
           <br><br>
-          <strong style="color:var(--text);display:block;margin-bottom:8px">📋 Apps Script Status</strong>
-          Make sure your Google Apps Script is deployed and the time trigger is running every 30–60 minutes.
+          <strong style="color:var(--text);display:block;margin-bottom:8px">📋 Apps Script</strong>
+          Make sure your Apps Script is deployed with a 30-min time trigger.<br>
           <a href="https://script.google.com" target="_blank" style="color:var(--red)">Open Apps Script →</a>
         </div>
       </div>
@@ -532,66 +339,75 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; 
   </main>
 </div>
 
-<!-- ── TOAST CONTAINER ── -->
 <div id="toast"></div>
 
-<!-- ── GOOGLE APIS ── -->
-<script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
-
+<script src="https://apis.google.com/js/api.js" onload="onGapiLoad()"></script>
+<script src="https://accounts.google.com/gsi/client" onload="onGisLoad()"></script>
 <script>
-/* ═══════════════════════════════════════════
-   CONFIG & STATE
-═══════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════ */
 const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
 const DISCOVERY = [
   'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
   'https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest',
 ];
-const SHEET_HEADERS = ['ID','Title','Description','Tags','CategoryId','Type','Privacy','DriveVideoId','DriveThumbnailId','ScheduledAt','Frequency','Status','YouTubeId','Notes','CreatedAt'];
+const SHEET_HEADERS = ['ID','Title','Description','Tags','CategoryId','Type','Privacy',
+  'DriveVideoId','DriveThumbnailId','ScheduledAt','Frequency','Status','YouTubeId','Notes','CreatedAt'];
 
-let CONFIG = {
-  clientId: localStorage.getItem('yt_client_id') || '',
-  sheetId:  localStorage.getItem('yt_sheet_id')  || '',
+const CFG = {
+  get clientId() { return localStorage.getItem('yt_client_id') || ''; },
+  get sheetId()  { return localStorage.getItem('yt_sheet_id')  || ''; },
 };
-let tokenClient, gapiReady = false, gisReady = false;
 
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
-function init() {
-  if (!CONFIG.clientId || !CONFIG.sheetId) {
-    show('setupOverlay'); return;
-  }
-  hide('setupOverlay');
-  show('loginScreen');
-  setDefaultDateTime();
-}
+/* ════════════════════════════════════════
+   INIT — Promise-based, no race conditions
+════════════════════════════════════════ */
+let _gapiResolve, _gisResolve;
+const gapiReady = new Promise(r => _gapiResolve = r);
+const gisReady  = new Promise(r => _gisResolve  = r);
+let tokenClient = null;
 
-function gapiLoaded() {
+function onGapiLoad() {
+  setLoadStatus('Loading Google API client...');
   gapi.load('client', async () => {
-    await gapi.client.init({ discoveryDocs: DISCOVERY });
-    gapiReady = true;
-    tryInit();
+    try {
+      await gapi.client.init({ discoveryDocs: DISCOVERY });
+      _gapiResolve();
+    } catch(e) {
+      setLoadStatus('GAPI init error: ' + e.message);
+      console.error('GAPI init error', e);
+    }
   });
 }
-function gisLoaded() {
-  if (!CONFIG.clientId) { gisReady = true; return; }
+
+function onGisLoad() {
+  setLoadStatus('Loading Google Identity Services...');
+  if (!CFG.clientId) { _gisResolve(); return; }
   tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CONFIG.clientId,
+    client_id: CFG.clientId,
     scope: SCOPES,
     callback: onTokenReceived,
+    error_callback: e => showToast('Auth error: ' + (e.message || e.type), 'error'),
   });
-  gisReady = true;
-  tryInit();
-}
-function tryInit() {
-  if (gapiReady && gisReady) show('loginScreen');
+  _gisResolve();
 }
 
-/* ═══════════════════════════════════════════
+async function boot() {
+  if (!CFG.clientId || !CFG.sheetId) {
+    hide('loadingScreen'); show('setupOverlay'); return;
+  }
+  setLoadStatus('Waiting for Google APIs...');
+  await Promise.all([gapiReady, gisReady]);
+  setLoadStatus('Ready!');
+  hide('loadingScreen');
+  show('loginScreen');
+}
+boot();
+
+/* ════════════════════════════════════════
    SETUP
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 function saveSetup() {
   const cid = document.getElementById('setupClientId').value.trim();
   const sid = document.getElementById('setupSheetId').value.trim();
@@ -601,27 +417,35 @@ function saveSetup() {
   location.reload();
 }
 function showSetup() {
-  document.getElementById('setupClientId').value = CONFIG.clientId;
-  document.getElementById('setupSheetId').value = CONFIG.sheetId;
-  show('setupOverlay');
+  document.getElementById('setupClientId').value = CFG.clientId;
+  document.getElementById('setupSheetId').value  = CFG.sheetId;
+  hide('loginScreen'); show('setupOverlay');
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════
    AUTH
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 async function signIn() {
+  // Wait for both APIs to be fully ready before doing anything
+  await Promise.all([gapiReady, gisReady]);
+
   if (!tokenClient) {
     tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CONFIG.clientId, scope: SCOPES, callback: onTokenReceived,
+      client_id: CFG.clientId,
+      scope: SCOPES,
+      callback: onTokenReceived,
+      error_callback: e => showToast('Auth error: ' + (e.message || e.type), 'error'),
     });
   }
-  tokenClient.callback = onTokenReceived;
-  const existing = (gapiReady && gapi.client) ? gapi.client.getToken() : null;
+
+  const existing = gapi.client.getToken();
   tokenClient.requestAccessToken(existing ? { prompt: '' } : { prompt: 'consent' });
 }
 
 async function onTokenReceived(resp) {
   if (resp.error) { showToast('Sign-in failed: ' + resp.error, 'error'); return; }
+
+  // Fetch user info
   try {
     const info = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: `Bearer ${resp.access_token}` }
@@ -630,14 +454,16 @@ async function onTokenReceived(resp) {
     const av = document.getElementById('userAvatar');
     if (info.picture) av.innerHTML = `<img src="${info.picture}" alt="avatar">`;
     else av.textContent = (info.email || 'U')[0].toUpperCase();
-  } catch(e) {}
+  } catch(e) { /* non-fatal */ }
+
   await ensureSheetHeaders();
-  hide('loginScreen');
-  show('mainApp');
-  document.getElementById('settingsClientId').value = CONFIG.clientId;
-  document.getElementById('settingsSheetId').value = CONFIG.sheetId;
-  document.getElementById('sheetIdDisplay').textContent = CONFIG.sheetId;
-  document.getElementById('sheetLink').href = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}`;
+
+  hide('loginScreen'); show('mainApp');
+  document.getElementById('settingsClientId').value = CFG.clientId;
+  document.getElementById('settingsSheetId').value  = CFG.sheetId;
+  document.getElementById('sheetIdDisplay').textContent = CFG.sheetId;
+  document.getElementById('sheetLink').href = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}`;
+  setDefaultDateTime();
   loadQueue();
 }
 
@@ -647,15 +473,24 @@ function signOut() {
   hide('mainApp'); show('loginScreen');
 }
 
-/* ═══════════════════════════════════════════
+// Returns current access token string, throws if not signed in
+function accessToken() {
+  const t = gapi.client.getToken();
+  if (!t || !t.access_token) throw new Error('Not signed in — please sign in again.');
+  return t.access_token;
+}
+
+/* ════════════════════════════════════════
    SHEET HELPERS
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 async function ensureSheetHeaders() {
   try {
-    const r = await gapi.client.sheets.spreadsheets.values.get({ spreadsheetId: CONFIG.sheetId, range: 'A1:O1' });
+    const r = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: CFG.sheetId, range: 'A1:O1',
+    });
     if (!r.result.values || r.result.values[0]?.[0] !== 'ID') {
       await gapi.client.sheets.spreadsheets.values.update({
-        spreadsheetId: CONFIG.sheetId, range: 'A1:O1',
+        spreadsheetId: CFG.sheetId, range: 'A1:O1',
         valueInputOption: 'RAW', resource: { values: [SHEET_HEADERS] },
       });
     }
@@ -664,32 +499,28 @@ async function ensureSheetHeaders() {
 
 async function appendRow(row) {
   await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: CONFIG.sheetId, range: 'A:O',
+    spreadsheetId: CFG.sheetId, range: 'A:O',
     valueInputOption: 'RAW', resource: { values: [row] },
   });
 }
 
-async function deleteRow(rowIndex) {
+async function deleteSheetRow(zeroBasedIndex) {
   await gapi.client.sheets.spreadsheets.batchUpdate({
-    spreadsheetId: CONFIG.sheetId,
-    resource: {
-      requests: [{
-        deleteDimension: {
-          range: { sheetId: 0, dimension: 'ROWS', startIndex: rowIndex, endIndex: rowIndex + 1 }
-        }
-      }]
-    }
+    spreadsheetId: CFG.sheetId,
+    resource: { requests: [{ deleteDimension: {
+      range: { sheetId: 0, dimension: 'ROWS', startIndex: zeroBasedIndex, endIndex: zeroBasedIndex + 1 }
+    }}]}
   });
 }
 
-/* ═══════════════════════════════════════════
-   DRIVE UPLOAD (resumable)
-═══════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   DRIVE UPLOAD (resumable, handles large files)
+════════════════════════════════════════ */
 async function uploadToDrive(file, onProgress) {
-  const token = gapi.client.getToken().access_token;
-  const CHUNK = 5 * 1024 * 1024; // 5MB chunks
+  const token = accessToken();
+  const CHUNK = 5 * 1024 * 1024; // 5MB per chunk
 
-  // Step 1: Initiate resumable session
+  // 1. Initiate resumable session
   const init = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
     method: 'POST',
     headers: {
@@ -700,15 +531,18 @@ async function uploadToDrive(file, onProgress) {
     },
     body: JSON.stringify({ name: file.name, mimeType: file.type }),
   });
-  if (!init.ok) throw new Error(`Drive session init failed: ${init.status}`);
+  if (!init.ok) {
+    const err = await init.text();
+    throw new Error(`Drive session init failed (${init.status}): ${err}`);
+  }
   const sessionUri = init.headers.get('Location');
 
-  // Step 2: Upload chunks
+  // 2. Upload chunks
   let offset = 0;
   while (offset < file.size) {
-    const end = Math.min(offset + CHUNK, file.size);
+    const end   = Math.min(offset + CHUNK, file.size);
     const chunk = file.slice(offset, end);
-    const res = await fetch(sessionUri, {
+    const res   = await fetch(sessionUri, {
       method: 'PUT',
       headers: {
         'Content-Range': `bytes ${offset}-${end - 1}/${file.size}`,
@@ -718,9 +552,7 @@ async function uploadToDrive(file, onProgress) {
     });
     if (res.status === 200 || res.status === 201) {
       onProgress(100);
-      const data = await res.json();
-      // Make file readable by the Apps Script (same account owns it, so it's fine)
-      return { id: data.id, name: data.name };
+      return await res.json(); // { id, name, ... }
     } else if (res.status === 308) {
       offset = end;
       onProgress(Math.round((offset / file.size) * 100));
@@ -729,12 +561,12 @@ async function uploadToDrive(file, onProgress) {
       throw new Error(`Chunk upload failed (${res.status}): ${err}`);
     }
   }
-  throw new Error('Upload stream ended without confirmation');
+  throw new Error('Upload ended without server confirmation');
 }
 
 async function uploadSmall(file) {
-  const token = gapi.client.getToken().access_token;
-  const form = new FormData();
+  const token = accessToken();
+  const form  = new FormData();
   form.append('metadata', new Blob([JSON.stringify({ name: file.name, mimeType: file.type })], { type: 'application/json' }));
   form.append('file', file);
   const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
@@ -742,21 +574,17 @@ async function uploadSmall(file) {
     headers: { 'Authorization': `Bearer ${token}` },
     body: form,
   });
-  if (!res.ok) throw new Error('Thumbnail upload failed');
+  if (!res.ok) throw new Error(`Thumbnail upload failed (${res.status})`);
   return await res.json();
 }
 
-/* ═══════════════════════════════════════════
-   FORM HANDLERS
-═══════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   FORM
+════════════════════════════════════════ */
 function handleVideoSelect(input) {
   const file = input.files[0]; if (!file) return;
   const div = document.getElementById('videoPreview');
-  div.innerHTML = `<div class="file-preview">
-    <span>🎬</span>
-    <span class="file-preview-name">${file.name}</span>
-    <span class="file-preview-size">${formatBytes(file.size)}</span>
-  </div>`;
+  div.innerHTML = `<div class="file-preview"><span>🎬</span><span class="file-preview-name">${esc(file.name)}</span><span class="file-preview-size">${fmtBytes(file.size)}</span></div>`;
   div.classList.remove('hidden');
 }
 
@@ -772,52 +600,51 @@ function handleThumbSelect(input) {
 }
 
 function setDefaultDateTime() {
-  const now = new Date();
-  now.setMinutes(0, 0, 0);
-  now.setHours(now.getHours() + 1);
-  document.getElementById('schedDate').value = now.toISOString().slice(0, 10);
-  document.getElementById('schedTime').value = now.toTimeString().slice(0, 5);
+  const now = new Date(); now.setMinutes(0,0,0); now.setHours(now.getHours() + 1);
+  document.getElementById('schedDate').value = now.toISOString().slice(0,10);
+  document.getElementById('schedTime').value = now.toTimeString().slice(0,5);
 }
 
 async function handleSubmit() {
-  const title = document.getElementById('titleInput').value.trim();
+  const title     = document.getElementById('titleInput').value.trim();
   const videoFile = document.getElementById('videoInput').files[0];
   const thumbFile = document.getElementById('thumbInput').files[0];
-  const date = document.getElementById('schedDate').value;
-  const time = document.getElementById('schedTime').value;
+  const date      = document.getElementById('schedDate').value;
+  const time      = document.getElementById('schedTime').value;
 
   if (!videoFile) { showToast('Please select a video file', 'error'); return; }
-  if (!title) { showToast('Please enter a title', 'error'); return; }
-  if (!date || !time) { showToast('Please set a schedule date and time', 'error'); return; }
+  if (!title)     { showToast('Please enter a title', 'error'); return; }
+  if (!date||!time){ showToast('Please set a schedule date and time', 'error'); return; }
+
+  // Make sure we still have a valid token before starting
+  try { accessToken(); } catch(e) { showToast('Session expired — please sign in again', 'error'); signOut(); return; }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   document.getElementById('submitBtnText').innerHTML = '<span class="spinner"></span> Uploading...';
   show('progressArea');
-  clearProgressSteps();
+  clearSteps();
 
   try {
-    // Step 1: Upload video to Drive
-    addProgressStep('Uploading video to Google Drive...', 'active');
-    const videoResult = await uploadToDrive(videoFile, (pct) => {
-      setProgress(pct * 0.8, `Uploading video: ${pct}%`);
-    });
-    markProgressStep(0, 'done');
+    // 1. Upload video
+    addStep('Uploading video to Google Drive...', 'active');
+    const videoResult = await uploadToDrive(videoFile, pct => setProgress(pct * 0.8, `Uploading video: ${pct}%`));
+    markStep(0, 'done');
 
-    // Step 2: Upload thumbnail
+    // 2. Upload thumbnail
     let thumbId = '';
     if (thumbFile) {
-      addProgressStep('Uploading thumbnail...', 'active');
+      addStep('Uploading thumbnail...', 'active');
       const thumbResult = await uploadSmall(thumbFile);
       thumbId = thumbResult.id;
-      markProgressStep(1, 'done');
+      markStep(1, 'done');
     }
 
-    // Step 3: Save to sheet
-    addProgressStep('Saving to schedule sheet...', 'active');
+    // 3. Save to sheet
+    addStep('Saving to schedule sheet...', 'active');
     setProgress(90, 'Saving to sheet...');
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
-    const row = [
+    await appendRow([
       Date.now().toString(),
       title,
       document.getElementById('descInput').value,
@@ -829,100 +656,90 @@ async function handleSubmit() {
       thumbId,
       scheduledAt,
       document.getElementById('freqInput').value,
-      'pending',
-      '',
-      '',
+      'pending', '', '',
       new Date().toISOString(),
-    ];
-    await appendRow(row);
-    markProgressStep(thumbFile ? 2 : 1, 'done');
-
+    ]);
+    markStep(thumbFile ? 2 : 1, 'done');
     setProgress(100, '✅ Scheduled!');
     showToast('Video scheduled successfully!', 'success');
 
     // Reset form
     document.getElementById('titleInput').value = '';
-    document.getElementById('descInput').value = '';
-    document.getElementById('tagsInput').value = '';
+    document.getElementById('descInput').value  = '';
+    document.getElementById('tagsInput').value  = '';
     document.getElementById('videoInput').value = '';
     document.getElementById('thumbInput').value = '';
     document.getElementById('videoPreview').classList.add('hidden');
     document.getElementById('thumbPreview').classList.add('hidden');
     setDefaultDateTime();
 
-    // Refresh queue
     await loadQueue();
     setTimeout(() => switchTab('queue'), 1500);
 
-  } catch (err) {
+  } catch(err) {
     showToast('Error: ' + err.message, 'error');
-    console.error(err);
+    console.error('Submit error:', err);
   } finally {
     btn.disabled = false;
     document.getElementById('submitBtnText').innerHTML = '📤 Schedule Upload';
-    setTimeout(() => hide('progressArea'), 3000);
+    setTimeout(() => hide('progressArea'), 4000);
   }
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════
    QUEUE
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 async function loadQueue() {
   const el = document.getElementById('queueContent');
-  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Loading...</div></div>';
+  el.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div>Loading...</div></div>';
   try {
     const r = await gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: CONFIG.sheetId, range: 'A2:O1000',
+      spreadsheetId: CFG.sheetId, range: 'A2:O1000',
     });
     const rows = (r.result.values || []).filter(r => r.length > 1);
-    document.getElementById('queueCount').textContent = `${rows.length} video${rows.length !== 1 ? 's' : ''} scheduled`;
-
+    document.getElementById('queueCount').textContent = `${rows.length} video${rows.length !== 1 ? 's' : ''}`;
     if (rows.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No videos scheduled yet. Upload one!</div></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No videos scheduled yet. Upload one!</div></div>';
       return;
     }
-
-    // rows are in sheet order; we want newest first
-    const sorted = [...rows].reverse();
-    el.innerHTML = `
-      <table class="queue-table">
-        <thead><tr>
-          <th>Title</th><th>Type</th><th>Scheduled</th><th>Frequency</th><th>Status</th><th>YouTube</th><th></th>
-        </tr></thead>
-        <tbody>${sorted.map((row, i) => queueRowHtml(row, rows.length - 1 - i + 1)).join('')}</tbody>
-      </table>`;
+    el.innerHTML = `<table class="queue-table">
+      <thead><tr><th>Title</th><th>Type</th><th>Scheduled</th><th>Freq</th><th>Status</th><th>YouTube</th><th></th></tr></thead>
+      <tbody>${[...rows].reverse().map((row, i) => rowHtml(row, rows.length - i)).join('')}</tbody>
+    </table>`;
   } catch(e) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Failed to load queue. Check permissions.</div></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Failed to load. Check permissions.</div></div>';
     console.error(e);
   }
 }
 
-function queueRowHtml(row, sheetRowIndex) {
-  const title = row[1] || '(no title)';
-  const type = row[5] || 'video';
-  const scheduledAt = row[9] ? new Date(row[9]).toLocaleString() : '—';
-  const freq = row[10] || 'once';
-  const status = row[11] || 'pending';
-  const ytId = row[12];
+function rowHtml(row, sheetDataRow) {
+  // sheetDataRow: 1-based index in the data array (row 1 = sheet row 2 because of header)
+  const title  = row[1] || '(no title)';
+  const type   = row[5] || 'video';
+  const sched  = row[9]  ? new Date(row[9]).toLocaleString()  : '—';
+  const freq   = row[10] || 'once';
+  const status = (row[11] || 'pending').toLowerCase();
+  const ytId   = row[12];
   const ytLink = ytId ? `<a class="yt-link" href="https://youtube.com/watch?v=${ytId}" target="_blank">▶ Watch</a>` : '—';
-  const badgeClass = { pending:'badge-pending', uploading:'badge-uploading', uploaded:'badge-uploaded', error:'badge-error' }[status] || 'badge-pending';
-  const dotIcon = { pending:'🟡', uploading:'🔵', uploaded:'🟢', error:'🔴' }[status] || '🟡';
-
+  const badge  = { pending:'badge-pending', uploading:'badge-uploading', uploaded:'badge-uploaded', error:'badge-error' }[status] || 'badge-pending';
+  const dot    = { pending:'🟡', uploading:'🔵', uploaded:'🟢', error:'🔴' }[status] || '🟡';
+  // sheetDataRow is 1-based in data rows; actual sheet row index (0-based) = sheetDataRow (header is row 0, data starts at 1)
   return `<tr>
     <td class="queue-title" title="${esc(title)}">${esc(title)}</td>
-    <td class="queue-type">${type === 'short' ? '📱 Short' : '📹 Video'}</td>
-    <td class="queue-time">${scheduledAt}</td>
+    <td class="queue-type">${type==='short'?'📱 Short':'📹 Video'}</td>
+    <td class="queue-time">${sched}</td>
     <td class="queue-type">${freq}</td>
-    <td><span class="status-badge ${badgeClass}">${dotIcon} ${status}</span></td>
+    <td><span class="status-badge ${badge}">${dot} ${status}</span></td>
     <td>${ytLink}</td>
-    <td><button class="delete-btn" onclick="confirmDelete(${sheetRowIndex})" title="Remove">🗑</button></td>
+    <td><button class="delete-btn" onclick="confirmDelete(${sheetDataRow})" title="Remove">🗑</button></td>
   </tr>`;
 }
 
-async function confirmDelete(rowIndex) {
+async function confirmDelete(sheetDataRow) {
   if (!confirm('Remove this video from the queue?')) return;
   try {
-    await deleteRow(rowIndex); // rowIndex is 1-based (sheet row), so sheetIndex = rowIndex (0-based = rowIndex - 1)
+    // sheetDataRow is 1-based in data; sheet row 0-based index = sheetDataRow (header is index 0)
+    await deleteSheetRow(sheetDataRow);
     showToast('Removed from queue', 'success');
     await loadQueue();
   } catch(e) {
@@ -930,9 +747,9 @@ async function confirmDelete(rowIndex) {
   }
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════
    SETTINGS
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 function saveSettings() {
   const cid = document.getElementById('settingsClientId').value.trim();
   const sid = document.getElementById('settingsSheetId').value.trim();
@@ -943,73 +760,53 @@ function saveSettings() {
   setTimeout(() => location.reload(), 1000);
 }
 
-/* ═══════════════════════════════════════════
+/* ════════════════════════════════════════
    UI HELPERS
-═══════════════════════════════════════════ */
+════════════════════════════════════════ */
 function switchTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   ['upload','queue','settings'].forEach(t => {
-    document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.toggle('hidden', t !== name);
+    const cap = t.charAt(0).toUpperCase() + t.slice(1);
+    document.getElementById('tab' + cap).classList.toggle('hidden', t !== name);
   });
   if (name === 'queue') loadQueue();
 }
 
-function setProgress(pct, label) {
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = Math.round(pct) + '%';
-  document.getElementById('progressLabel').textContent = label;
+function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
+function setLoadStatus(msg) { const el = document.getElementById('loadStatus'); if (el) el.textContent = msg; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtBytes(b) {
+  if (b<1024) return b+' B'; if (b<1048576) return (b/1024).toFixed(1)+' KB';
+  if (b<1073741824) return (b/1048576).toFixed(1)+' MB'; return (b/1073741824).toFixed(1)+' GB';
 }
 
 let _steps = [];
-function clearProgressSteps() {
-  _steps = [];
-  document.getElementById('progressSteps').innerHTML = '';
-  setProgress(0, 'Starting...');
-}
-function addProgressStep(text, state = '') {
-  _steps.push({ text, state });
-  renderSteps();
-}
-function markProgressStep(index, state) {
-  if (_steps[index]) { _steps[index].state = state; renderSteps(); }
-}
-function renderSteps() {
-  document.getElementById('progressSteps').innerHTML = _steps.map(s =>
-    `<div class="progress-step ${s.state}"><span class="step-dot"></span>${s.text}</div>`
-  ).join('');
+function clearSteps() { _steps=[]; document.getElementById('progressSteps').innerHTML=''; setProgress(0,'Starting...'); }
+function addStep(text,state='') { _steps.push({text,state}); renderSteps(); }
+function markStep(i,state) { if(_steps[i]) { _steps[i].state=state; renderSteps(); } }
+function renderSteps() { document.getElementById('progressSteps').innerHTML=_steps.map(s=>`<div class="progress-step ${s.state}"><span class="step-dot"></span>${s.text}</div>`).join(''); }
+function setProgress(pct,label) {
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=Math.round(pct)+'%';
+  document.getElementById('progressLabel').textContent=label;
 }
 
-function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
-function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function formatBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
-  return (b/1073741824).toFixed(1) + ' GB';
-}
-
-let _toasts = [];
-function showToast(msg, type = 'info') {
-  const id = Date.now();
-  const el = document.createElement('div');
-  el.className = `toast-item toast-${type}`;
-  el.innerHTML = `<span>${{'success':'✅','error':'❌','info':'ℹ️'}[type]}</span> ${msg}`;
+function showToast(msg,type='info') {
+  const el=document.createElement('div');
+  el.className=`toast-item toast-${type}`;
+  el.innerHTML=`<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]}</span> ${msg}`;
   document.getElementById('toast').appendChild(el);
-  setTimeout(() => el.remove(), 4000);
+  setTimeout(()=>el.remove(),4000);
 }
 
-/* ── Drag & drop visual ── */
-['videoDropZone','thumbDropZone'].forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
-  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
-  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('dragover'); });
+// Drag & drop visual feedback
+['videoDropZone','thumbDropZone'].forEach(id=>{
+  const el=document.getElementById(id); if(!el) return;
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('dragover');});
+  el.addEventListener('dragleave',()=>el.classList.remove('dragover'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('dragover');});
 });
-
-/* ══ BOOT ══ */
-init();
 </script>
 </body>
 </html>
