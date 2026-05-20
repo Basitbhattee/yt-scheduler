@@ -616,7 +616,7 @@ async function signIn() {
     });
   }
   tokenClient.callback = onTokenReceived;
-  const existing = gapi.client.getToken();
+  const existing = (gapiReady && gapi.client) ? gapi.client.getToken() : null;
   tokenClient.requestAccessToken(existing ? { prompt: '' } : { prompt: 'consent' });
 }
 
