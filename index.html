@@ -31,7 +31,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 /* LOADING */
 #loadingScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
 .load-logo{font-size:1.8rem;font-weight:800}.load-logo span{color:var(--red)}
-.load-status{font-size:.82rem;color:var(--text3);font-family:var(--mono)}
+.load-status{font-size:.82rem;color:var(--text3);font-family:var(--mono);max-width:420px;text-align:center;line-height:1.6}
+.load-retry{margin-top:8px}
 
 /* FORMS */
 .field{margin-bottom:16px}
@@ -171,8 +172,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:24px 0}
 <!-- LOADING SCREEN -->
 <div id="loadingScreen">
   <div class="load-logo">YT <span>Scheduler</span></div>
-  <div class="spinner" style="border-top-color:var(--red)"></div>
+  <div class="spinner" id="loadSpinner" style="border-top-color:var(--red)"></div>
   <div class="load-status" id="loadStatus">Initializing Google APIs...</div>
+  <button class="btn btn-ghost btn-sm load-retry hidden" id="loadRetry" onclick="location.reload()">↻ Reload</button>
 </div>
 
 <!-- LOGIN SCREEN -->
@@ -341,8 +343,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:24px 0}
 
 <div id="toast"></div>
 
-<script src="https://apis.google.com/js/api.js" onload="onGapiLoad()"></script>
-<script src="https://accounts.google.com/gsi/client" onload="onGisLoad()"></script>
 <script>
 /* ════════════════════════════════════════
    CONFIG
@@ -361,11 +361,14 @@ const CFG = {
 };
 
 /* ════════════════════════════════════════
-   INIT — Promise-based, no race conditions
+   INIT — Promise-based, no race conditions.
+   Scripts are loaded from JS *after* the handlers
+   are defined, so onload can never fire before
+   onGapiLoad / onGisLoad exist.
 ════════════════════════════════════════ */
-let _gapiResolve, _gisResolve;
-const gapiReady = new Promise(r => _gapiResolve = r);
-const gisReady  = new Promise(r => _gisResolve  = r);
+let _gapiResolve, _gapiReject, _gisResolve, _gisReject;
+const gapiReady = new Promise((res, rej) => { _gapiResolve = res; _gapiReject = rej; });
+const gisReady  = new Promise((res, rej) => { _gisResolve  = res; _gisReject  = rej; });
 let tokenClient = null;
 
 function onGapiLoad() {
@@ -374,35 +377,78 @@ function onGapiLoad() {
     try {
       await gapi.client.init({ discoveryDocs: DISCOVERY });
       _gapiResolve();
-    } catch(e) {
-      setLoadStatus('GAPI init error: ' + e.message);
+    } catch (e) {
       console.error('GAPI init error', e);
+      _gapiReject(new Error('Google API client failed to initialize: ' + (e?.message || e?.details || 'unknown error') + '. Check that Drive API + Sheets API are enabled in your Google Cloud project.'));
     }
   });
 }
 
 function onGisLoad() {
   setLoadStatus('Loading Google Identity Services...');
-  if (!CFG.clientId) { _gisResolve(); return; }
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CFG.clientId,
-    scope: SCOPES,
-    callback: onTokenReceived,
-    error_callback: e => showToast('Auth error: ' + (e.message || e.type), 'error'),
-  });
-  _gisResolve();
+  try {
+    if (CFG.clientId) {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CFG.clientId,
+        scope: SCOPES,
+        callback: onTokenReceived,
+        error_callback: e => showToast('Auth error: ' + (e.message || e.type), 'error'),
+      });
+    }
+    _gisResolve();
+  } catch (e) {
+    console.error('GIS init error', e);
+    _gisReject(new Error('Google Identity Services failed to initialize: ' + (e?.message || 'unknown error')));
+  }
+}
+
+/* Load Google's libraries dynamically, with explicit error handling. */
+function loadGoogleScript(src, onload, label) {
+  const s = document.createElement('script');
+  s.src = src;
+  s.async = true;
+  s.onload = onload;
+  s.onerror = () => {
+    const msg = `Could not load ${label}. This is usually an ad blocker, privacy extension, or network/firewall blocking ${new URL(src).host}. Disable blockers for this page and reload.`;
+    if (label.includes('Identity')) _gisReject(new Error(msg));
+    else _gapiReject(new Error(msg));
+  };
+  document.head.appendChild(s);
 }
 
 async function boot() {
   if (!CFG.clientId || !CFG.sheetId) {
     hide('loadingScreen'); show('setupOverlay'); return;
   }
+
+  // Kick off both library loads now that handlers exist.
+  loadGoogleScript('https://apis.google.com/js/api.js', onGapiLoad, 'Google API (api.js)');
+  loadGoogleScript('https://accounts.google.com/gsi/client', onGisLoad, 'Google Identity Services');
+
   setLoadStatus('Waiting for Google APIs...');
-  await Promise.all([gapiReady, gisReady]);
+  try {
+    await Promise.race([
+      Promise.all([gapiReady, gisReady]),
+      new Promise((_, rej) => setTimeout(
+        () => rej(new Error('Timed out after 20s waiting for Google APIs. Likely an ad blocker, privacy extension, or network/firewall is blocking apis.google.com / accounts.google.com.')),
+        20000
+      )),
+    ]);
+  } catch (e) {
+    showLoadError(e.message || String(e));
+    return;
+  }
   setLoadStatus('Ready!');
   hide('loadingScreen');
   show('loginScreen');
 }
+
+function showLoadError(msg) {
+  setLoadStatus('⚠️ ' + msg);
+  hide('loadSpinner');
+  show('loadRetry');
+}
+
 boot();
 
 /* ════════════════════════════════════════
@@ -427,7 +473,12 @@ function showSetup() {
 ════════════════════════════════════════ */
 async function signIn() {
   // Wait for both APIs to be fully ready before doing anything
-  await Promise.all([gapiReady, gisReady]);
+  try {
+    await Promise.all([gapiReady, gisReady]);
+  } catch (e) {
+    showToast('Google APIs not ready: ' + e.message, 'error');
+    return;
+  }
 
   if (!tokenClient) {
     tokenClient = google.accounts.oauth2.initTokenClient({
@@ -444,6 +495,8 @@ async function signIn() {
 
 async function onTokenReceived(resp) {
   if (resp.error) { showToast('Sign-in failed: ' + resp.error, 'error'); return; }
+
+  gapi.client.setToken({ access_token: resp.access_token });
 
   // Fetch user info
   try {
